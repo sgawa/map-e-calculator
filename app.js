@@ -374,6 +374,9 @@
 
   function renderAsLinks() {
     const target = document.getElementById("as-links-list");
+    if (!target) {
+      return;
+    }
     target.innerHTML = DATA.services.map(function (service) {
       const urls = (service.bgp.lookupUrls || [])
         .filter(function (link) {

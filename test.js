@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const vm = require("node:vm");
 const rules = require("./rules.js");
 const calculator = require("./app.js");
 
@@ -76,5 +77,67 @@ assert.equal(
   fs.readFileSync("./rules.js", "utf8").includes("FC2 MAP-E Calculator"),
   false
 );
+
+{
+  function createElementStub() {
+    return {
+      innerHTML: "",
+      textContent: "",
+      value: "",
+      hidden: false,
+      dataset: {},
+      children: [],
+      appendChild(child) {
+        this.children.push(child);
+      },
+      addEventListener(type, handler) {
+        this["on" + type] = handler;
+      },
+      reset() {
+        this.wasReset = true;
+      },
+    };
+  }
+
+  const elements = Object.create(null);
+  const document = {
+    getElementById(id) {
+      if (id === "as-links-list") {
+        return null;
+      }
+      if (!elements[id]) {
+        elements[id] = createElementStub();
+      }
+      return elements[id];
+    },
+    createElement() {
+      return createElementStub();
+    },
+    addEventListener(type, handler) {
+      if (type === "DOMContentLoaded") {
+        handler();
+      }
+    },
+  };
+
+  const sandbox = {
+    window: null,
+    globalThis: null,
+    document,
+    console,
+    Date,
+  };
+  sandbox.window = sandbox;
+  sandbox.globalThis = sandbox;
+
+  vm.runInNewContext(fs.readFileSync("./rules.js", "utf8"), sandbox, {
+    filename: "rules.js",
+  });
+  vm.runInNewContext(fs.readFileSync("./app.js", "utf8"), sandbox, {
+    filename: "app.js",
+  });
+
+  assert.equal(elements.service.children.length, rules.services.length);
+}
 
 console.log("All MAP-E tests passed.");
