@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAP-E計算機</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="rules.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>MAP-E計算機</h1>
+      <p>v6プラス、BIGLOBE IPv6オプション、OCNバーチャルコネクト向けの MAP-E パラメータ計算機です。</p>
+
+      <h2>入力</h2>
+      <form id="calculator-form">
+        <p>
+          <label for="service">サービス</label><br>
+          <select id="service" name="service" required>
+            <option value="">選択してください</option>
+          </select>
+        </p>
+        <p>
+          <label for="ipv6-input">IPv6 プレフィックス / アドレス</label><br>
+          <input
+            id="ipv6-input"
+            name="ipv6-input"
+            type="text"
+            size="48"
+            placeholder="240b:0010:0000:3400::"
+            required
+          >
+        </p>
+        <p>
+          <button type="submit">計算</button>
+          <button type="button" id="reset-button">クリア</button>
+        </p>
+      </form>
+      <p id="status" aria-live="polite"></p>
+
+      <h2>計算結果</h2>
+      <table class="result-table">
+        <tbody>
+          <tr>
+            <th>IPv4 アドレス</th>
+            <td id="result-ipv4">-</td>
+          </tr>
+          <tr>
+            <th>PSID</th>
+            <td id="result-psid">-</td>
+          </tr>
+          <tr>
+            <th>CE アドレス</th>
+            <td id="result-ce">-</td>
+          </tr>
+          <tr>
+            <th>BR アドレス</th>
+            <td id="result-br">-</td>
+          </tr>
+          <tr>
+            <th>IPv6 ルール</th>
+            <td id="result-rule-ipv6">-</td>
+          </tr>
+          <tr>
+            <th>IPv4 ルール</th>
+            <td id="result-rule-ipv4">-</td>
+          </tr>
+          <tr>
+            <th>EA length / PSID length</th>
+            <td id="result-ea-psid">-</td>
+          </tr>
+          <tr>
+            <th>offset / 総ポート数</th>
+            <td id="result-offset-ports">-</td>
+          </tr>
+          <tr>
+            <th>計算に使った /56</th>
+            <td id="result-prefix56">-</td>
+          </tr>
+          <tr>
+            <th>ルールソース</th>
+            <td id="result-source-date">-</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        <label for="result-port-ranges">利用可能ポート範囲</label><br>
+        <textarea
+          id="result-port-ranges"
+          rows="8"
+          cols="48"
+          readonly
+          placeholder="計算後に利用可能ポート範囲を表示します。"
+        ></textarea>
+      </p>
+
+      <h3>補足</h3>
+      <ul id="result-notes"></ul>
+
+      <div id="v6plus-extra-section" hidden>
+        <h3>v6プラス参考情報</h3>
+        <table>
+          <tbody>
+            <tr>
+              <th>DNS</th>
+              <td id="result-v6plus-dns"></td>
+            </tr>
+            <tr>
+              <th>Domain</th>
+              <td id="result-v6plus-domain"></td>
+            </tr>
+            <tr>
+              <th>SNTP</th>
+              <td id="result-v6plus-sntp"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>対応 ISP 一覧</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>サービス</th>
+            <th>VNE</th>
+            <th>対応 ISP</th>
+          </tr>
+        </thead>
+        <tbody id="isp-matrix-body"></tbody>
+      </table>
+      <p id="calculation-source-note"></p>
+
+      <h2>IPv6 プレフィックス / アドレスの取得方法</h2>
+      <ol>
+        <li>ルーターや HGW の「IPv6 接続状態」「WAN 状態」「MAP-E 状態」などの画面を開きます。</li>
+        <li>グローバル IPv6 アドレス、または委譲された IPv6 プレフィックス（/56 や /64）を探します。</li>
+        <li>`fe80::` で始まるリンクローカルアドレスではなく、`2` または `3` で始まるグローバル IPv6 を入力してください。</li>
+        <li>プレフィックスが表示されている場合はそのまま、アドレスだけ表示されている場合はその IPv6 アドレスを入力してください。</li>
+      </ol>
+      <p>PC から確認する場合の例:</p>
+      <pre><code>Windows: ipconfig
+macOS / Linux: ip -6 addr
+macOS / Linux: ifconfig</code></pre>
+      <p>自前ルーター運用時は WAN 側の IPv6 ではなく、MAP-E の CE 側に割り当てられているグローバル IPv6 /56 または /64 を使うと判定しやすいです。</p>
+
+      <h2>参考情報</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>サービス</th>
+            <th>VNE</th>
+            <th>BR アドレス</th>
+            <th>公開可能ポート数</th>
+            <th>IPv4 アドレス共有人数</th>
+            <th>主な IPv6 プレフィックス帯</th>
+            <th>Origin AS / プレフィックス</th>
+          </tr>
+        </thead>
+        <tbody id="service-reference-body"></tbody>
+      </table>
+
+<!--       <h2>AS情報 URL</h2>
+      <div id="as-links-list"></div> -->
+
+      <h2>参考文献</h2>
+      <ul>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc6346" target="_blank" rel="noreferrer">
+            RFC 6346: The Address plus Port (A+P) Approach to the IPv4 Address Shortage
+          </a>
+        </li>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc7597" target="_blank" rel="noreferrer">
+            RFC 7597: Mapping of Address and Port with Encapsulation (MAP-E)
+          </a>
+        </li>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc7598" target="_blank" rel="noreferrer">
+            RFC 7598: DHCPv6 Options for Configuration of Softwire Address and Port-Mapped Clients
+          </a>
+        </li>
+      </ul>
+    </main>
+  </body>
+</html>
