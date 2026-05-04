@@ -3,7 +3,7 @@
   "use strict";
 
   const data = {
-  "generatedAt": "2026-04-25T07:50:38.370Z",
+  "generatedAt": "2026-05-04T04:17:26.144Z",
   "calculationSourceNote": "RIPEstat / BGP HE の情報は AS / BR の参考情報です。",
   "services": [
     {
@@ -5282,7 +5282,7 @@
       "ruleSourceDate": "2026年1月 OCN 公開ルール",
       "bgp": {
         "originAsn": "AS4713",
-        "originHolder": "OCN NTT DOCOMO BUSINESS",
+        "originHolder": "OCN NTT DOCOMO BUSINESS,Inc.",
         "brOriginPrefix": "2001:380::/32",
         "representativeBgpPrefix": "2400:4000::/22",
         "lookupUrls": [
